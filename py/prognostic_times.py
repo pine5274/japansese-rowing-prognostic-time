@@ -9,12 +9,9 @@ def speed(x):
     return 2000 / x
 
 def plot_trends(df, boat_type):
-    # p = df['2000m'].quantile(0.046)
+    # 外れ値の除去
     q = df['2000m'].quantile(0.954)
     df = df[(df['2000m'] < q)]
-    # p = df['2000m'].quantile(0.046)
-    # q = df['2000m'].quantile(0.954)
-    # df = df[(df['2000m'] < q) & (df['2000m'] > p)]
 
     x = df.loc[:, 'year']
     y = df.loc[:, '2000m']
@@ -28,6 +25,7 @@ def plot_trends(df, boat_type):
     y2 = np.poly1d(res2)(x) #2次
     y3 = np.poly1d(res3)(x) #3次
 
+    # 2022年の推定値
     PT_1 = np.poly1d(res1)(2022)
     PT_2 = np.poly1d(res2)(2022)
     PT_3 = np.poly1d(res3)(2022)
@@ -38,7 +36,7 @@ def plot_trends(df, boat_type):
     plt.plot(x, y3, label='3d')
     plt.xticks(np.arange(2000, 2023, 2))
     plt.title(boat_type + " trends")
-    plt.xlabel('yaer', fontsize=12)  # x軸ラベル
+    plt.xlabel('year', fontsize=12)  # x軸ラベル
     plt.ylabel('speed[m/s]', fontsize=12)  # y軸ラベル
     plt.grid()
     plt.legend()
@@ -65,8 +63,6 @@ pd.set_option('display.max_rows', None)
 winner = final_df.groupby(['boat_type', 'year'], as_index=False)['2000m'].min()
 boat_types = (winner['boat_type'].unique())
 
-
-
 winner = winner.append({'boat_type': 'm1x', 'year': 2021, '2000m': 437.1}, ignore_index=True)
 winner = winner.append({'boat_type': 'm2x', 'year': 2021, '2000m': 402.6}, ignore_index=True)
 winner = winner.append({'boat_type': 'm2-', 'year': 2021, '2000m': 423.1}, ignore_index=True)
@@ -77,13 +73,10 @@ winner = winner.append({'boat_type': 'm8+', 'year': 2021, '2000m': 355.5}, ignor
 winner = winner.append({'boat_type': 'w1x', 'year': 2021, '2000m': 497.8}, ignore_index=True)
 winner = winner.append({'boat_type': 'w2x', 'year': 2021, '2000m': 442.2}, ignore_index=True)
 winner = winner.append({'boat_type': 'w2-', 'year': 2021, '2000m': 473.7}, ignore_index=True)
-winner = winner.append({'boat_type': 'w4x', 'year': 2021, '2000m': 407}, ignore_index=True)
+winner = winner.append({'boat_type': 'w4x', 'year': 2021, '2000m': 407},   ignore_index=True)
 winner = winner.append({'boat_type': 'w4+', 'year': 2021, '2000m': 443.2}, ignore_index=True)
 
-print(winner)
-
 dict = {}
-
 
 for v in boat_types:
     boat = winner[winner['boat_type'] == v]
@@ -95,10 +88,9 @@ for v in boat_types:
 dict["w4x"] = round((dict["m4x"] + (dict["w2x"] - dict["m2x"])), 1)
 dict["w4+"] = round((dict["m4+"] + (dict["w2x"] - dict["m2x"])), 1)
 
-# print(dict)
 for k in dict.keys():
     dict[k] = sec_to_time(dict[k])
 
 pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
-pt_df.to_csv('./../dst/trends/PT_time.csv')
-# diff_df.sort_values('diff').to_csv('./../dst/trends/diff_PT.csv')
+print(pt_df)
+# pt_df.to_csv('./../dst/trends/PT_time.csv')
