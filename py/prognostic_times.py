@@ -14,7 +14,7 @@ def plot_trends(df, boat_type):
     df = df[(df['2000m'] < q)]
 
     x = df.loc[:, 'year']
-    y = df.loc[:, '2000m']
+    y = df.loc[:, '2000m']      
     y = y.map(speed)
     #近似式の係数
     res1=np.polyfit(x, y, 1)

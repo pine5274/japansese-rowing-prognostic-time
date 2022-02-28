@@ -1,0 +1,28 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(60, 110, 1000)
+plt.figure(0)
+plt.plot(x, 333.07 + (101-x) * 0.91, label='%IDT check tool by weight')
+plt.plot(x, 333.07/((x/101)**0.222), label='Concept2 weight adjustment')
+plt.plot(x, 333.07*((x+22)/123)**(-2/9), label='Rowing force conversion')
+plt.title("Men's 2000m time for 100% IDT")
+plt.xlabel('weight [kg]', fontsize=12) 
+plt.ylabel('2000m Time [s]', fontsize=12) 
+plt.grid()
+plt.legend()
+# plt.savefig('./../dst/weight/men.jpg')
+plt.figure()
+
+x = np.linspace(50, 90, 1000)
+plt.figure(0)
+# plt.plot(x, 357.8*((x+22)/123)**(-2/9), label='2d')
+plt.plot(x, 357.8/((x/100)**0.222), label='Concept2 Weight Adjustment ')
+plt.plot(x, 357.8 + (100-x) * 1.4, label='%IDT check tool by weight')
+plt.title("Women's 2000m time for 100% IDT")
+plt.xlabel('weight[kg]', fontsize=12) 
+plt.ylabel('2000m Time[s]', fontsize=12) 
+plt.grid()
+plt.legend()
+plt.savefig('./../dst/weight/women.jpg')
+plt.figure()
