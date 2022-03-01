@@ -8,7 +8,7 @@ def datetime_serialize(day):
     dt = datetime.datetime.strptime(day, '%Y/%m/%d') - datetime.datetime(2021, 9, 1)
     return dt.days
 
-sheet_name = 'tomita'
+sheet_name = 'ohira'
 df = pd.read_csv('./prognostic-time/csv/' + sheet_name + '.csv', sep=',')
 # 外れ値の除去
 q = df['muscle_mass'].quantile(0.954)

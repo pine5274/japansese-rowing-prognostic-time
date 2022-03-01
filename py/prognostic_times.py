@@ -41,7 +41,7 @@ def plot_trends(df, boat_type):
     plt.grid()
     plt.legend()
     plt.savefig('./../dst/trends/' + boat_type + '.jpg')
-    plt.figure()
+    # plt.figure()
 
     return  median([PT_1, PT_2, PT_3])
 
@@ -52,7 +52,7 @@ def sec_to_time(time):
         return str(m) + ':0' + str(s)
     return str(m) + ':' + str(s)
 
-df = pd.read_csv('./../csv/race_scraping2021_second.csv', sep=',')
+df = pd.read_csv('./prognostic-time/csv/race_scraping2021_second.csv', sep=',')
 df.drop(['500m', '1000m', '1500m','team', 'order', 'tournament_name', 'race_number', 'lane', 'Unnamed: 0', 'qualify'], axis=1, inplace=True)
 indexNames = df[
     (df['2000m'] == 0.0)
@@ -63,18 +63,9 @@ pd.set_option('display.max_rows', None)
 winner = final_df.groupby(['boat_type', 'year'], as_index=False)['2000m'].min()
 boat_types = (winner['boat_type'].unique())
 
-winner = winner.append({'boat_type': 'm1x', 'year': 2021, '2000m': 437.1}, ignore_index=True)
-winner = winner.append({'boat_type': 'm2x', 'year': 2021, '2000m': 402.6}, ignore_index=True)
-winner = winner.append({'boat_type': 'm2-', 'year': 2021, '2000m': 423.1}, ignore_index=True)
-winner = winner.append({'boat_type': 'm4-', 'year': 2021, '2000m': 374.9}, ignore_index=True)
-winner = winner.append({'boat_type': 'm4x', 'year': 2021, '2000m': 370.3}, ignore_index=True)
-winner = winner.append({'boat_type': 'm4+', 'year': 2021, '2000m': 391.8}, ignore_index=True)
-winner = winner.append({'boat_type': 'm8+', 'year': 2021, '2000m': 355.5}, ignore_index=True)
-winner = winner.append({'boat_type': 'w1x', 'year': 2021, '2000m': 497.8}, ignore_index=True)
-winner = winner.append({'boat_type': 'w2x', 'year': 2021, '2000m': 442.2}, ignore_index=True)
-winner = winner.append({'boat_type': 'w2-', 'year': 2021, '2000m': 473.7}, ignore_index=True)
-winner = winner.append({'boat_type': 'w4x', 'year': 2021, '2000m': 407},   ignore_index=True)
-winner = winner.append({'boat_type': 'w4+', 'year': 2021, '2000m': 443.2}, ignore_index=True)
+# 2022年のデータを読み込む
+df_2022 = pd.read_csv('./prognostic-time/csv/inter_college_result_2022.csv', sep=',')
+winner = pd.concat([winner, df_2022], axis=0)
 
 dict = {}
 
@@ -88,9 +79,9 @@ for v in boat_types:
 dict["w4x"] = round((dict["m4x"] + (dict["w2x"] - dict["m2x"])), 1)
 dict["w4+"] = round((dict["m4+"] + (dict["w2x"] - dict["m2x"])), 1)
 
-for k in dict.keys():
-    dict[k] = sec_to_time(dict[k])
+# for k in dict.keys():
+#     dict[k] = sec_to_time(dict[k])
 
 pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
 print(pt_df)
-# pt_df.to_csv('./../dst/trends/PT_time.csv')
+pt_df.to_csv('./../dst/trends/PT_time.csv')
