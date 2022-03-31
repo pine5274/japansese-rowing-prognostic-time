@@ -1,3 +1,4 @@
 *.json
 **/_Env.js
 *.ipynb
+.md
