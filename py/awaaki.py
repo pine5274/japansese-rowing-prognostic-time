@@ -28,19 +28,27 @@ def theoretical_pace(pace, rate, target_rate=34, calibration = 1):
 
 x_rate_list = np.arange(16, 42, 2)
 list = []
-calibration = 0.82
+calibration = 0.88
+space = 1.35 * 2
 for i, rate in enumerate(x_rate_list):
+    pace = theoretical_pace(92, 37, rate, calibration)
+    dps = (60 * 500 / pace) / rate
+    babble_space = (dps - space * 3) / space
     list.append({
         "SR": rate,
-        "m1x":  sec_to_time(theoretical_pace(434.6/4, 32, rate, calibration)),
-        "m2-":  sec_to_time(theoretical_pace(423.9/4, 33, rate, calibration)),
-        "m4+":  sec_to_time(theoretical_pace(392.5/4, 34, rate, calibration)),
-        "m4-":  sec_to_time(theoretical_pace(377.2/4, 35, rate, calibration)),
-        "m4x":  sec_to_time(theoretical_pace(366.3/4, 36, rate, calibration)),
-        "m8+":  sec_to_time(theoretical_pace(352.8/4, 37, rate, calibration)),
-        "w1x":  sec_to_time(theoretical_pace(488.7/4, 32, rate, calibration)),
-        "w2x":  sec_to_time(theoretical_pace(444.8/4, 34, rate, calibration)),
-        "w4x+": sec_to_time(theoretical_pace(422.2/4, 35, rate, calibration)),
-        "w4x" : sec_to_time(theoretical_pace(411.4/4, 36, rate, calibration)),
+        "/500m":  sec_to_time(pace),
+        "DPS": dps,
+        "泡空き": babble_space
     })
 df = pd.DataFrame(list)
+
+rate = 36
+pace = 97
+
+dps = (60 * 500 / pace) / rate
+
+babble_space = (dps - space * 3) / space
+
+print(dps)
+print(babble_space)
+df
