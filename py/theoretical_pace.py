@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from scipy import optimize
-from statistics import median
+import csv
 
 def sec_to_time(time):
     m = math.floor(time / 60)
@@ -12,35 +11,31 @@ def sec_to_time(time):
         return str(m) + ':0' + str(s)
     return str(m) + ':' + str(s)
 
-def calc_1500m_target(target_time_2000m):
-    distance = 1500
-    distance_factor = 0.475
-    sets = 5
+def theoretical_pace(target_time, target_rate, rate=34, calibration = 1):
+    return target_time/4/(rate/target_rate)**(calibration*(1/3))
 
-    single_distance_conversion = distance * (1 + (sets - 1) * distance_factor)
 
-    result = (target_time_2000m * (2000 / single_distance_conversion)/((2000/single_distance_conversion)**(19/18))) / 4
+with open('../csv/target_time.csv') as f:
+    reader = csv.DictReader(f)
+    l = [row for row in reader]
 
-    return result
+x_rate_list = np.arange(16, 41, 4)
+calibration = 0.7
 
-def theoretical_pace(pace, rate, target_rate=34, calibration = 1):
-    return pace/(target_rate/rate)**(calibration*(1/3))
-
-x_rate_list = np.arange(16, 42, 2)
-list = []
-calibration = 0.82
-for i, rate in enumerate(x_rate_list):
-    list.append({
-        "SR": rate,
-        "m1x":  sec_to_time(theoretical_pace(434.6/4, 32, rate, calibration)),
-        "m2-":  sec_to_time(theoretical_pace(423.9/4, 33, rate, calibration)),
-        "m4+":  sec_to_time(theoretical_pace(392.5/4, 34, rate, calibration)),
-        "m4-":  sec_to_time(theoretical_pace(377.2/4, 35, rate, calibration)),
-        "m4x":  sec_to_time(theoretical_pace(366.3/4, 36, rate, calibration)),
-        "m8+":  sec_to_time(theoretical_pace(352.8/4, 37, rate, calibration)),
-        "w1x":  sec_to_time(theoretical_pace(488.7/4, 32, rate, calibration)),
-        "w2x":  sec_to_time(theoretical_pace(444.8/4, 34, rate, calibration)),
-        "w4x+": sec_to_time(theoretical_pace(422.2/4, 35, rate, calibration)),
-        "w4x" : sec_to_time(theoretical_pace(411.4/4, 36, rate, calibration)),
-    })
-df = pd.DataFrame(list)
+for d in l:
+    for x in x_rate_list:
+        d[f'SR: {x}'] = sec_to_time(theoretical_pace(float(d['target_time']), int(d['target_rate']), x, calibration))
+    d['target_time'] = sec_to_time(float(d['target_time']))
+    
+df = pd.DataFrame(l)
+df.to_csv('../dst/theoretical_pace.csv')
+x_SR = np.arange(16, 42, 0.5)
+y = []
+calibration = np.arange(0.65, 1.05, 0.05)
+for c in calibration:
+    for x in x_SR:
+        y.append(theoretical_pace(120, 20, x, c))
+    plt.plot(x_SR, y, label=c)
+    y = []
+    
+plt.figure()
