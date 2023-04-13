@@ -25,9 +25,9 @@ def plot_trends(df, boat_type):
     y3 = np.poly1d(res3)(x) #3次
 
     # 2022年の推定値
-    PT_1 = np.poly1d(res1)(2022)
-    PT_2 = np.poly1d(res2)(2022)
-    PT_3 = np.poly1d(res3)(2022)
+    PT_1 = np.poly1d(res1)(2023)
+    PT_2 = np.poly1d(res2)(2023)
+    PT_3 = np.poly1d(res3)(2023)
     #グラフ表示
     plt.scatter(x, y, label='time')
     plt.plot(x, y1, label='1d')
@@ -39,7 +39,7 @@ def plot_trends(df, boat_type):
     plt.ylabel('speed[m/s]', fontsize=12)  # y軸ラベル
     plt.grid()
     plt.legend()
-    plt.savefig('./../dst/trends/' + boat_type + '.jpg')
+    plt.savefig('./../dst/trends/all_japan/' + boat_type + '.jpg')
     plt.figure()
 
     return  median([PT_1, PT_2, PT_3])
@@ -51,37 +51,30 @@ def sec_to_time(time):
         return str(m) + ':0' + str(s)
     return str(m) + ':' + str(s)
 
-df = pd.read_csv('./../csv/race_scraping2021_second.csv', sep=',')
-df.drop(['500m', '1000m', '1500m','team', 'order', 'tournament_name', 'race_number', 'lane', 'Unnamed: 0', 'qualify'], axis=1, inplace=True)
+df = pd.read_csv('./../csv/all_japan_second.csv', sep=',')
+df.drop(['500m', '1000m', '1500m','team', 'order', 'race_number', 'lane', 'Unnamed: 0', 'qualify'], axis=1, inplace=True)
 indexNames = df[
     (df['2000m'] == 0.0)
 ].index
 df.drop(indexNames , inplace=True)
-final_df = df[df['section_code'].str.contains("決勝")]
+final_df = df[df['section_code'].str.contains("決勝|Final A")]
 pd.set_option('display.max_rows', None)
 winner = final_df.groupby(['boat_type', 'year'], as_index=False)['2000m'].min()
 boat_types = (winner['boat_type'].unique())
-
-# 2022年のデータを読み込む
-df_2022 = pd.read_csv('./../csv/inter_college_result_2022.csv', sep=',')
-winner = pd.concat([winner, df_2022], axis=0)
 
 dict = {}
 
 for v in boat_types:
     boat = winner[winner['boat_type'] == v]
-    if (v == 'w4x') | (v == 'w4+'):
-        continue
+    # if (v == 'w4x') | (v == 'w4+'):
+    #     continue
     PT = plot_trends(boat, v)
-    dict[v] = round((2000 / PT), 1)
-
-dict["w4x"] = round((dict["m4x"] + (dict["w2x"] - dict["m2x"])), 1)
-dict["w4+"] = round((dict["m4+"] + (dict["w2x"] - dict["m2x"])), 1)
+    dict[v] = sec_to_time(round((2000 / PT), 1))
+    # dict[v] = round((2000 / PT), 1)
 
 # for k in dict.keys():
 #     dict[k] = sec_to_time(dict[k])
 
-print(dict)
+# print(dict)
 pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
-print(pt_df)
-pt_df.to_csv('./../dst/trends/PT_time.csv')
+pt_df.to_csv('./../dst/trends/all_japan/PT_time.csv')
