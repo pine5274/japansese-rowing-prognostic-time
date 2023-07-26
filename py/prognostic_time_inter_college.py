@@ -39,7 +39,7 @@ def plot_trends(df, boat_type):
     plt.ylabel('speed[m/s]', fontsize=12)  # y軸ラベル
     plt.grid()
     plt.legend()
-    plt.savefig('./../dst/trends/all_japan/' + boat_type + '.jpg')
+    # plt.savefig('./../dst/trends/inter_college/' + boat_type + '.jpg')
     plt.figure()
 
     return  median([PT_1, PT_2, PT_3])
@@ -66,8 +66,9 @@ dict = {}
 
 for v in boat_types:
     boat = winner[winner['boat_type'] == v]
-    # if (v == 'w4x') | (v == 'w4+'):
-    #     continue
+    if (v == 'w8+'):
+        continue
+    print(v)
     PT = plot_trends(boat, v)
     dict[v] = sec_to_time(round((2000 / PT), 1))
     # dict[v] = round((2000 / PT), 1)
