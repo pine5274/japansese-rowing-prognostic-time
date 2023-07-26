@@ -51,7 +51,7 @@ def sec_to_time(time):
         return str(m) + ':0' + str(s)
     return str(m) + ':' + str(s)
 
-df = pd.read_csv('./../csv/all_japan_second.csv', sep=',')
+df = pd.read_csv('./../csv/inter_college_second.csv', sep=',')
 df.drop(['500m', '1000m', '1500m','team', 'order', 'race_number', 'lane', 'Unnamed: 0', 'qualify'], axis=1, inplace=True)
 indexNames = df[
     (df['2000m'] == 0.0)
@@ -73,4 +73,4 @@ for v in boat_types:
     # dict[v] = round((2000 / PT), 1)
 
 pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
-pt_df.to_csv('./../dst/trends/all_japan/PT_time.csv')
+pt_df.to_csv('./../dst/trends/inter_college/PT_time.csv')
