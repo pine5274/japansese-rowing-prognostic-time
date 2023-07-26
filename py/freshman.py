@@ -9,7 +9,9 @@ def speed(x):
 
 def plot_trends(df, boat_type):
     # 外れ値の除去
+    p = df['2000m'].quantile(0.046)
     q = df['2000m'].quantile(0.954)
+    df = df[(df['2000m'] > p)]
     df = df[(df['2000m'] < q)]
 
     x = df.loc[:, 'year']
@@ -25,9 +27,12 @@ def plot_trends(df, boat_type):
     y3 = np.poly1d(res3)(x) #3次
 
     # 2022年の推定値
-    PT_1 = np.poly1d(res1)(2023)
-    PT_2 = np.poly1d(res2)(2023)
-    PT_3 = np.poly1d(res3)(2023)
+    # PT_1 = np.poly1d(res1)(2023)
+    # PT_2 = np.poly1d(res2)(2023)
+    # PT_3 = np.poly1d(res3)(2023)
+    PT_1 = np.poly1d(res1)(2020)
+    PT_2 = np.poly1d(res2)(2020)
+    PT_3 = np.poly1d(res3)(2020)
     #グラフ表示
     plt.scatter(x, y, label='time')
     plt.plot(x, y1, label='1d')
@@ -42,6 +47,7 @@ def plot_trends(df, boat_type):
     plt.savefig('./../dst/trends/freshman/' + boat_type + '.jpg')
     plt.figure()
 
+    # return  PT_1
     return  median([PT_1, PT_2, PT_3])
 
 def sec_to_time(time):
@@ -66,11 +72,14 @@ dict = {}
 
 for v in boat_types:
     boat = winner[winner['boat_type'] == v]
-    # if (v == 'w4x') | (v == 'w4+'):
-    #     continue
+    boat = boat[boat['year'] != 2022]
+    if (v == 'w4x') | (v == 'w4+'):
+        continue
     PT = plot_trends(boat, v)
     dict[v] = sec_to_time(round((2000 / PT), 1))
     # dict[v] = round((2000 / PT), 1)
 
 pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
 pt_df.to_csv('./../dst/trends/freshman/PT_time.csv')
+
+# コロナ前のトレンドが感覚と一致
