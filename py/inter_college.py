@@ -7,7 +7,7 @@ from statistics import median
 def speed(x):
     return 2000 / x
 
-def plot_trends(df, boat_type):
+def calc_PT(df, boat_type):
     # 外れ値の除去
     q = df['2000m'].quantile(0.954)
     df = df[(df['2000m'] < q)]
@@ -28,7 +28,13 @@ def plot_trends(df, boat_type):
     PT_1 = np.poly1d(res1)(2023)
     PT_2 = np.poly1d(res2)(2023)
     PT_3 = np.poly1d(res3)(2023)
+
     #グラフ表示
+    # plot_trends(x, y, y1, y2, y3, boat_type)
+
+    return  median([PT_1, PT_2, PT_3])
+
+def plot_trends(x, y, y1, y2, y3, boat_type):
     plt.scatter(x, y, label='time')
     plt.plot(x, y1, label='1d')
     plt.plot(x, y2, label='2d')
@@ -39,10 +45,8 @@ def plot_trends(df, boat_type):
     plt.ylabel('speed[m/s]', fontsize=12)  # y軸ラベル
     plt.grid()
     plt.legend()
-    # plt.savefig('./../dst/trends/inter_college/' + boat_type + '.jpg')
+    plt.savefig('./../dst/trends/inter_college/' + boat_type + '.jpg')
     plt.figure()
-
-    return  median([PT_1, PT_2, PT_3])
 
 def sec_to_time(time):
     m = math.floor(time / 60)
@@ -51,27 +55,63 @@ def sec_to_time(time):
         return str(m) + ':0' + str(s)
     return str(m) + ':' + str(s)
 
+def generate_PT_list(boat_types):
+    l = []
+    d = {}
+    for boat_type in boat_types:
+        if (boat_type == 'w4x'):
+            continue
+        boat = df[df['boat_type'] == boat_type]
+        PT = calc_PT(boat, boat_type)
+        PT_seconds = round((2000 / PT), 1)
+        d['boat_type'] = boat_type
+        d['PT'] = sec_to_time(PT_seconds)
+        d['PT[s]'] = PT_seconds
+        l.append(d)
+        d = {}
+
+    return l;
+
+def adjustment(l):
+    for d in l:
+        if (d['boat_type'] == 'm8+'):
+            v_standard = d['PT[s]']
+        if (d['boat_type'] == 'm2x'):
+            double = d['PT[s]']
+        if (d['boat_type'] == 'm4x'):
+            quad = d['PT[s]']
+
+    double_to_quad = quad / double
+
+    for d in l:
+        d['ratio'] = round(d['PT[s]']/ v_standard, 3)
+        if (d['boat_type'] == 'w2x'):
+            PTw4x = round(d['PT[s]'] * double_to_quad, 1)
+
+    l.append({
+        'boat_type': 'w4x',
+        'PT': sec_to_time(PTw4x),
+        'PT[s]': PTw4x,
+        'ratio': round(PTw4x / v_standard, 3)
+    })
+
+    return l
+
 df = pd.read_csv('./../csv/inter_college_second.csv', sep=',')
-df.drop(['500m', '1000m', '1500m','team', 'order', 'race_number', 'lane', 'Unnamed: 0', 'qualify'], axis=1, inplace=True)
-indexNames = df[
-    (df['2000m'] == 0.0)
-].index
-df.drop(indexNames , inplace=True)
-final_df = df[df['section_code'].str.contains("決勝|Final A")]
-pd.set_option('display.max_rows', None)
-winner = final_df.groupby(['boat_type', 'year'], as_index=False)['2000m'].min()
-boat_types = (winner['boat_type'].unique())
+df = df[df['section_code'].str.contains("決勝|Final A")]
+df = df.groupby(['boat_type', 'year'], as_index=False)['2000m'].min()
+# 2021年は全日本と合同開催なので除去
+df = df[df['year'] != 2021]
+# 2021年のデータを手動で読み込む
+df_2021 = pd.read_csv('./../csv/inter_college_2021.csv', sep=',')
+df = pd.concat([df, df_2021])
 
-dict = {}
+boat_types = (df['boat_type'].unique())
+l = generate_PT_list(boat_types)
+l = adjustment(l)
+pt_df = pd.DataFrame(l)
 
-for v in boat_types:
-    boat = winner[winner['boat_type'] == v]
-    if (v == 'w8+'):
-        continue
-    print(v)
-    PT = plot_trends(boat, v)
-    dict[v] = sec_to_time(round((2000 / PT), 1))
-    # dict[v] = round((2000 / PT), 1)
 
-pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
+
+# pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
 pt_df.to_csv('./../dst/trends/inter_college/PT_time.csv')
