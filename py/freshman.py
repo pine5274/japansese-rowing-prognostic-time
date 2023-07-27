@@ -83,3 +83,4 @@ pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
 pt_df.to_csv('./../dst/trends/freshman/PT_time.csv')
 
 # コロナ前のトレンドが感覚と一致
+# 線形近似を選択
