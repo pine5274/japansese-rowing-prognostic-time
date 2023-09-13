@@ -24,7 +24,7 @@ def calc_PT(df, boat_type):
     y2 = np.poly1d(res2)(x) #2次
     y3 = np.poly1d(res3)(x) #3次
 
-    # 2022年の推定値
+    # 2023年の推定値
     PT_1 = np.poly1d(res1)(2023)
     PT_2 = np.poly1d(res2)(2023)
     PT_3 = np.poly1d(res3)(2023)
@@ -32,7 +32,8 @@ def calc_PT(df, boat_type):
     #グラフ表示
     # plot_trends(x, y, y1, y2, y3, boat_type)
 
-    return  median([PT_1, PT_2, PT_3])
+    # return  median([PT_1, PT_2, PT_3])
+    return PT_1
 
 def plot_trends(x, y, y1, y2, y3, boat_type):
     plt.scatter(x, y, label='time')
@@ -67,6 +68,11 @@ def generate_PT_list(boat_types):
         d['boat_type'] = boat_type
         d['PT'] = sec_to_time(PT_seconds)
         d['PT[s]'] = PT_seconds
+        d['100%'] = sec_to_time(PT_seconds)
+        d['97.5%'] = sec_to_time(PT_seconds/0.975)
+        d['95%'] = sec_to_time(PT_seconds/0.95)
+        d['92.5%'] = sec_to_time(PT_seconds/0.925)
+        d['90%'] = sec_to_time(PT_seconds/0.9)
         l.append(d)
         d = {}
 
@@ -92,6 +98,11 @@ def adjustment(l):
         'boat_type': 'w4x',
         'PT': sec_to_time(PTw4x),
         'PT[s]': PTw4x,
+        '100%': sec_to_time(PTw4x),
+        '97.5%': sec_to_time(PTw4x/0.975),
+        '95%': sec_to_time(PTw4x/0.95),
+        '92.5%': sec_to_time(PTw4x/0.925),
+        '90%': sec_to_time(PTw4x/0.9),
         'ratio': round(PTw4x / v_standard, 3)
     })
 
@@ -110,8 +121,4 @@ boat_types = (df['boat_type'].unique())
 l = generate_PT_list(boat_types)
 l = adjustment(l)
 pt_df = pd.DataFrame(l)
-
-
-
-# pt_df = pd.DataFrame.from_dict(dict, orient="index", columns=["PT"])
 pt_df.to_csv('./../dst/trends/inter_college/PT_time.csv')
