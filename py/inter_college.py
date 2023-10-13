@@ -36,6 +36,9 @@ def calc_PT(df, boat_type):
     return PT_1
 
 def plot_trends(x, y, y1, y2, y3, boat_type):
+    fig, ax = plt.subplots()
+    ax.invert_yaxis()
+    ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(sec_to_time_2))
     plt.scatter(x, y, label='time')
     plt.plot(x, y1, label='1d')
     plt.plot(x, y2, label='2d')
@@ -50,6 +53,13 @@ def plot_trends(x, y, y1, y2, y3, boat_type):
     plt.figure()
 
 def sec_to_time(time):
+    m = math.floor(time / 60)
+    s = round((time % 60), 1)
+    if s < 10:
+        return str(m) + ':0' + str(s)
+    return str(m) + ':' + str(s)
+
+def sec_to_time_2(time, pos):
     m = math.floor(time / 60)
     s = round((time % 60), 1)
     if s < 10:
