@@ -68,7 +68,7 @@ with open('../../prognostic-time/dst/trends/inter_college/PT_time.csv') as f:
     reader = csv.DictReader(f)
     l_pt = [row for row in reader]
 
-df_all = pd.read_csv('./../csv/inter_college_2023.csv', sep=',')
+df_all = pd.read_csv('../../rowScraping/dst/inter_college_2023.csv', sep=',')
 df_all = df_all[df_all['year'] != 2021]
 df_all = df_all.loc[:,['year','boat_type', 'section_code', 'order', '2000m']]
 df_all = df_all[df_all['section_code'].str.contains("決勝|Final A|Final B|順決")]
@@ -113,11 +113,16 @@ for boat_type in types:
     pt = float(list(filter(lambda x: x["boat_type"] == boat_type, l_pt))[0]["PT[s]"])
 
     d["boat_type"] = boat_type
-    d["percent [%]"] = round(slope, 2)
-    d["time gap [s/2000m]"] = round(pt * slope / 100, 2)
+    d["gap [%]"] = round(slope, 2)
+    d["gap [s/2000m]"] = round(pt * slope / 100, 2)
+    d["3rd [%IDT]"] = round(100 - slope * 2, 2)
+    d["6th [%IDT]"] = round(100 - slope * 5, 2)
+    d["8th [%IDT]"] = round(100 - slope * 7, 2)
+    d["12th [%IDT]"] = round(100 - slope * 11, 2)
+    d["18th [%IDT]"] = round(100 - slope * 17, 2)
     l.append(d)
     d = {}
 
-    plot_margin(x, y, line_y, boat_type)
+    # plot_margin(x, y, line_y, boat_type)
 
 margin_df = pd.DataFrame(l)
